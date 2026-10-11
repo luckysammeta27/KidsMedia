@@ -1,0 +1,273 @@
+/* KidsMedia - Student AI Hackathon Demo Stylesheet */
+/* Clean, accessible, mobile-first design with soft teal, sky blue, sunshine yellow, coral, and lavender */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-display: 'Fredoka', cursive, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --km-teal: #0D9488;
+  --km-sky: #0284C7;
+  --km-yellow: #F59E0B;
+  --km-coral: #F43F5E;
+  --km-lavender: #8B5CF6;
+  --km-cream: #FFFDF9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background: #F0F9FF;
+  background-image: 
+    radial-gradient(#CBD5E1 1px, transparent 1px),
+    radial-gradient(#CBD5E1 1px, #F8FAFC 1px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+  color: #1E293B;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.font-fredoka {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Accessible Keyboard Focus Ring */
+:focus-visible {
+  outline: 2px solid var(--km-teal) !important;
+  outline-offset: 2px !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Hide scrollbar for horizontal chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile Frame Wrapper */
+.mobile-device-shell {
+  width: 100%;
+  max-width: 440px;
+  height: 890px;
+  max-height: 94vh;
+  background: #FFFFFF;
+  border-radius: 44px;
+  box-shadow: 
+    0 0 0 10px #1E293B,
+    0 0 0 12px #334155,
+    0 25px 50px -12px rgba(15, 23, 42, 0.35);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Native mobile screen adaptation */
+@media (max-width: 640px) {
+  body {
+    background: #FFFFFF;
+    background-image: none;
+    padding: 0 !important;
+  }
+  .mobile-device-shell {
+    max-width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .dynamic-island {
+    display: none !important;
+  }
+}
+
+/* Expanded desktop inspection view */
+.mobile-device-shell.expanded-mode {
+  max-width: 680px;
+  height: 92vh;
+  border-radius: 36px;
+}
+
+/* Dynamic Island Mockup */
+.dynamic-island {
+  width: 110px;
+  height: 24px;
+  background: #1E293B;
+  border-radius: 999px;
+  margin: 0 auto;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.camera-lens {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0F172A;
+  border: 1px solid #334155;
+}
+
+/* Tactile touch targets */
+.bubbly-btn {
+  min-height: 44px;
+  touch-action: manipulation;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.bubbly-btn:active {
+  transform: scale(0.96) translateY(1px);
+}
+
+/* Card styling */
+.card-kids {
+  border-radius: 24px;
+  box-shadow: 0 6px 18px -4px rgba(15, 23, 42, 0.05), 0 3px 6px -2px rgba(15, 23, 42, 0.02);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.card-kids:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08);
+}
+
+/* 6 Large Illustrated Category Cards */
+.category-hero-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.category-hero-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -4px rgba(0, 0, 0, 0.07);
+}
+.category-hero-card:active {
+  transform: scale(0.97);
+}
+
+/* Bottom Nav bar */
+.bottom-nav-container {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1.5px solid rgba(226, 232, 240, 0.85);
+}
+
+.bottom-nav-item {
+  min-height: 48px;
+}
+.bottom-nav-item.active {
+  color: var(--km-teal);
+}
+.bottom-nav-item.active .nav-icon-wrapper {
+  background: #CCFBF1;
+  color: #0F766E;
+  transform: translateY(-2px);
+}
+
+/* Floating Create Button in Bottom Nav */
+.nav-create-btn {
+  background: linear-gradient(135deg, #0D9488 0%, #0284C7 100%);
+  box-shadow: 0 8px 20px -3px rgba(13, 148, 136, 0.45);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-height: 52px;
+  min-width: 52px;
+}
+.nav-create-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+}
+.nav-create-btn:active {
+  transform: translateY(0px) scale(0.95);
+}
+
+/* Sound Wave Visualizer Bars */
+.sound-bar {
+  width: 4px;
+  height: 8px;
+  background-color: currentColor;
+  border-radius: 999px;
+  animation: wave 1s infinite ease-in-out alternate;
+}
+.sound-bar:nth-child(1) { animation-delay: 0.1s; }
+.sound-bar:nth-child(2) { animation-delay: 0.3s; }
+.sound-bar:nth-child(3) { animation-delay: 0.5s; }
+.sound-bar:nth-child(4) { animation-delay: 0.2s; }
+.sound-bar:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes wave {
+  0% { height: 6px; }
+  100% { height: 26px; }
+}
+
+/* Gentle subtle float animation */
+@keyframes gentleFloat {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-gentle-float {
+  animation: gentleFloat 3s ease-in-out infinite;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Smooth screen transition */
+.screen-fade {
+  animation: screenFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes screenFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

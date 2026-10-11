@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KidsMedia — Discover Yourself. Share Your Talent. Grow Together.</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              teal: '#0D9488',
+              sky: '#0284C7',
+              yellow: '#F59E0B',
+              coral: '#F43F5E',
+              lavender: '#8B5CF6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="flex flex-col items-center justify-center p-0 sm:p-4 md:p-6 min-h-screen">
+
+  <!-- Desktop Presentation Controls Header (outside mobile frame) -->
+  <header class="w-full max-w-xl mx-auto mb-3 hidden sm:flex items-center justify-between px-3 text-xs text-slate-600">
+    <div class="flex items-center gap-2">
+      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="font-fredoka font-semibold text-slate-700">KidsMedia • Creative Learning Community</span>
+      <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Child-Friendly & Safe</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button 
+        id="btn-toggle-frame" 
+        class="bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-xs font-fredoka text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 transition-all"
+        title="Toggle between phone frame and expanded mobile view"
+      >
+        <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Expanded View
+      </button>
+      <button 
+        onclick="app.resetDemoData()" 
+        class="bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-xs font-fredoka text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 transition-all"
+        title="Reset sample demo data"
+      >
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Demo
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Mobile Device Shell -->
+  <main id="mobile-frame" class="mobile-device-shell relative select-none">
+    
+    <!-- Phone Top Notch / Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="camera-lens"></div>
+    </div>
+
+    <!-- Phone Status Bar -->
+    <div class="pt-2 px-7 pb-1 flex items-center justify-between text-[11px] font-bold text-slate-700 z-40 bg-white/90 backdrop-blur-xs select-none">
+      <span>9:41</span>
+      <div class="flex items-center gap-1.5">
+        <i data-lucide="wifi" class="w-3 h-3 text-slate-700"></i>
+        <i data-lucide="battery" class="w-3.5 h-3.5 text-slate-700"></i>
+      </div>
+    </div>
+
+    <!-- KidsMedia App Header -->
+    <nav class="px-4 py-2.5 bg-white border-b border-slate-100 flex items-center justify-between z-30 shadow-xs">
+      <!-- App Brand Logo -->
+      <button onclick="app.navigateTo('home')" class="flex items-center gap-2.5 text-left bubbly-btn">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-sky-500 flex items-center justify-center text-white shadow-sm shadow-teal-200">
+          <i data-lucide="sparkles" class="w-5 h-5 fill-amber-300 text-amber-300"></i>
+        </div>
+        <div>
+          <h1 class="font-fredoka font-bold text-base leading-none text-slate-900 tracking-tight flex items-center gap-1">
+            Kids<span class="text-teal-600">Media</span>
+          </h1>
+          <p class="text-[10px] font-fredoka font-semibold text-slate-400 leading-none mt-1">Discover • Share • Grow</p>
+        </div>
+      </button>
+
+      <!-- Right Header Actions: Sound Toggle & Dedicated Parent Corner Access -->
+      <div class="flex items-center gap-2">
+        <!-- Sound FX Toggle -->
+        <button 
+          id="btn-toggle-sound" 
+          aria-label="Toggle Fun Sound Effects"
+          class="w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-600 border border-slate-200 bubbly-btn"
+          title="Toggle Fun Sound Effects"
+        >
+          <i data-lucide="volume-2" class="w-4 h-4 text-teal-600"></i>
+        </button>
+
+        <!-- AI Creativity Coach Button -->
+        <button 
+          data-open-ai-coach 
+          aria-label="Open AI Creativity Coach"
+          class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-fredoka font-bold bubbly-btn"
+          title="Ask the AI Creativity Coach"
+        >
+          <span>🤖</span>
+          <span>AI Coach</span>
+        </button>
+
+        <!-- Parent Corner Dedicated Access Button -->
+        <button 
+          id="btn-parent-corner" 
+          aria-label="Open Parent Corner Supervision Area"
+          class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 text-xs font-fredoka font-bold bubbly-btn"
+          title="Guardian Supervision Area"
+        >
+          <i data-lucide="shield" class="w-4 h-4 text-purple-600 fill-purple-100"></i>
+          <span>Parent Corner</span>
+          <!-- Pending review badge -->
+          <span id="parent-pending-count" class="w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center shadow-xs">2</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Scrollable Screen Content Container -->
+    <div id="app-scroll-container" class="flex-1 overflow-y-auto overflow-x-hidden bg-[#FBF9F5] pb-24">
+
+      <!-- ========================================== -->
+      <!-- SCREEN 1: HOME                             -->
+      <!-- ========================================== -->
+      <section id="screen-home" class="app-screen p-4 space-y-5">
+        
+        <!-- Welcoming Hero Section (Exact Prompts Required) -->
+        <div class="rounded-3xl bg-gradient-to-br from-teal-500 via-teal-600 to-sky-600 p-5 text-white shadow-md shadow-teal-200/50 relative overflow-hidden">
+          <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-white/10 blur-md pointer-events-none"></div>
+          <div class="absolute right-4 top-4 text-3xl opacity-80 animate-gentle-float pointer-events-none">✨</div>
+
+          <div class="relative z-10">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-xs text-xs font-fredoka font-semibold mb-2">
+              🌟 Welcome to KidsMedia!
+            </span>
+            <!-- Hero Heading & Subtitle -->
+            <h2 class="font-fredoka font-bold text-xl leading-tight text-white">
+              Every Child Has Something Special!
+            </h2>
+            <p class="text-xs text-teal-50 mt-1.5 max-w-[300px] leading-relaxed">
+              Discover your talents. Share your creativity. Learn together.
+            </p>
+
+            <div class="mt-4 flex items-center gap-2">
+              <button 
+                onclick="app.navigateTo('create'); sounds.pop();" 
+                class="px-4 py-2.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-fredoka font-bold text-xs shadow-md shadow-amber-500/30 flex items-center gap-1.5 bubbly-btn"
+              >
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Your Turn to Shine! 🚀
+              </button>
+              <button 
+                onclick="app.navigateTo('discover'); sounds.pop();" 
+                class="px-4 py-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-fredoka font-semibold text-xs backdrop-blur-xs bubbly-btn flex items-center gap-1.5"
+              >
+                <i data-lucide="compass" class="w-4 h-4"></i> Explore Talents
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Creativity Coach Spotlight Card -->
+        <div class="rounded-3xl bg-gradient-to-r from-teal-500 via-sky-500 to-indigo-600 p-4 text-white shadow-md shadow-teal-200/40 relative overflow-hidden card-kids">
+          <div class="flex items-start justify-between gap-3 relative z-10">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl shadow-inner shrink-0">
+                🤖
+              </div>
+              <div>
+                <span class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-fredoka font-bold uppercase tracking-wider text-amber-200">
+                  AI Creativity Coach ✨
+                </span>
+                <h3 class="font-fredoka font-bold text-base leading-tight mt-0.5">
+                  Need Fun Practice Tips or Project Ideas?
+                </h3>
+                <p class="text-xs text-white/90 mt-0.5">
+                  Pick any talent to get 3 beginner practice activities and creative project starters!
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center justify-between pt-2 border-t border-white/10 relative z-10">
+            <button 
+              data-open-ai-coach
+              class="px-4 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-fredoka font-bold text-xs shadow-md shadow-amber-500/20 flex items-center gap-1.5 bubbly-btn"
+            >
+              <span>🚀</span> Ask Creativity Coach
+            </button>
+            <span class="text-[11px] text-teal-100 font-medium">Safe & child-friendly</span>
+          </div>
+        </div>
+
+        <!-- Section: Six Large Illustrated Category Cards -->
+        <div>
+          <div class="mb-3 px-1">
+            <h3 class="font-fredoka font-bold text-base text-slate-900 leading-tight">
+              Explore Talent Superpowers 🎈
+            </h3>
+            <p class="text-xs text-slate-500">Pick any category to discover creations and learn new skills</p>
+          </div>
+
+          <!-- 6 Large Illustrated Category Cards Grid -->
+          <div id="home-six-categories" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <!-- Rendered dynamically by JS with illustrations, descriptions, and click handlers -->
+          </div>
+        </div>
+
+        <!-- Section: How KidsMedia Encourages Creativity, Learning, Kindness & Safe Sharing -->
+        <div class="rounded-3xl bg-white border border-slate-100 p-4.5 card-kids space-y-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-lg shadow-2xs">
+              🌱
+            </div>
+            <div>
+              <h3 class="font-fredoka font-bold text-sm text-slate-900 leading-tight">
+                How KidsMedia Nurtures Young Talents Safely
+              </h3>
+              <p class="text-[11px] text-slate-500">A positive, non-competitive community built for children</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-3 rounded-2xl bg-teal-50/70 border border-teal-100/60">
+              <span class="font-fredoka font-bold text-teal-900 flex items-center gap-1 text-[11px]">
+                🎨 Creativity First
+              </span>
+              <p class="text-[10px] text-slate-600 mt-1 leading-snug">
+                Express talents across singing, dancing, acting, art, and teaching in a positive space.
+              </p>
+            </div>
+            <div class="p-3 rounded-2xl bg-sky-50/70 border border-sky-100/60">
+              <span class="font-fredoka font-bold text-sky-900 flex items-center gap-1 text-[11px]">
+                📚 Learning & Sharing
+              </span>
+              <p class="text-[10px] text-slate-600 mt-1 leading-snug">
+                Learn practical tips, origami folds, science demos, and vocal rhymes from peers.
+              </p>
+            </div>
+            <div class="p-3 rounded-2xl bg-rose-50/70 border border-rose-100/60">
+              <span class="font-fredoka font-bold text-rose-900 flex items-center gap-1 text-[11px]">
+                💖 Kindness & Affirmation
+              </span>
+              <p class="text-[10px] text-slate-600 mt-1 leading-snug">
+                Preset positive affirmations (“Celebrate Creativity!”) with zero toxic follower rankings.
+              </p>
+            </div>
+            <div class="p-3 rounded-2xl bg-purple-50/70 border border-purple-100/60">
+              <span class="font-fredoka font-bold text-purple-900 flex items-center gap-1 text-[11px]">
+                🛡️ Guardian-Reviewed
+              </span>
+              <p class="text-[10px] text-slate-600 mt-1 leading-snug">
+                Every project is verified in Parent Corner before appearing in the public showcase.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Featured Approved Sample Creations -->
+        <div>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div>
+              <h3 class="font-fredoka font-bold text-base text-slate-900 leading-tight">
+                Featured Sample Creations ⭐
+              </h3>
+              <p class="text-xs text-slate-500">Fictional creative projects to learn from</p>
+            </div>
+            <button 
+              onclick="app.navigateTo('discover'); sounds.pop();" 
+              class="text-xs font-fredoka font-bold text-teal-600 hover:text-teal-700 flex items-center gap-0.5"
+            >
+              See all <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Featured List Grid -->
+          <div id="home-featured-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SCREEN 2: DISCOVER (FILTERABLE GALLERY)    -->
+      <!-- ========================================== -->
+      <section id="screen-discover" class="app-screen hidden p-4 space-y-4">
+        
+        <!-- Header & Search -->
+        <div>
+          <h2 class="font-fredoka font-bold text-xl text-slate-900">Discover & Learn ✨</h2>
+          <p class="text-xs text-slate-500">Explore approved sample creations across all 6 talent categories</p>
+          
+          <!-- Search Bar -->
+          <div class="mt-3 relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input 
+              id="discover-search-input"
+              type="text" 
+              placeholder="Search by title, rhyme, science trick, or story..." 
+              class="w-full bg-white border border-slate-200 rounded-full pl-10 pr-9 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 shadow-xs"
+            />
+            <button 
+              id="btn-clear-search" 
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden"
+            >
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Horizontal Category Filter Chips -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="discover-category-filters">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Gallery Header & Approved Sample Status Notice -->
+        <div class="flex items-center justify-between px-1 text-xs">
+          <span class="text-slate-500 text-[11px] flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-teal-600"></i> All items shown are parent-approved samples
+          </span>
+          <span id="discover-count-badge" class="font-fredoka font-semibold bg-slate-200/80 text-slate-700 px-2.5 py-0.5 rounded-full text-[11px]">
+            6 creations
+          </span>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div id="discover-gallery" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="discover-empty-state" class="hidden text-center py-12 px-4 bg-white rounded-3xl border border-slate-100">
+          <span class="text-5xl block mb-2 animate-gentle-float">🔍 🎈</span>
+          <h3 class="font-fredoka font-bold text-base text-slate-800">No creations found</h3>
+          <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+            Try a different search word or select another talent category!
+          </p>
+          <button 
+            onclick="app.selectCategoryAndDiscover('all')" 
+            class="mt-4 px-4 py-2 rounded-full bg-teal-600 text-white font-fredoka text-xs font-semibold bubbly-btn"
+          >
+            Show All Creations
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SCREEN 3: CREATE (TALENT STUDIO)           -->
+      <!-- ========================================== -->
+      <section id="screen-create" class="app-screen hidden p-4 space-y-4">
+        
+        <!-- Header Banner with Required Title -->
+        <div class="rounded-3xl bg-gradient-to-r from-amber-400 via-rose-400 to-purple-500 p-5 text-white shadow-md relative overflow-hidden">
+          <div class="relative z-10">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-[10px] font-fredoka font-bold mb-1.5">
+              🚀 Creative Studio
+            </span>
+            <h2 class="font-fredoka font-bold text-xl leading-tight">Your Turn to Shine! ✨</h2>
+            <p class="text-xs text-white/95 mt-1 max-w-[300px]">
+              Select your talent superpower, describe what you created, and submit it for friendly parent review.
+            </p>
+          </div>
+        </div>
+
+        <!-- Creation Form Card -->
+        <form id="create-project-form" class="bg-white rounded-3xl border border-slate-200 p-4.5 space-y-4 card-kids">
+          
+          <!-- Category Picker -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="font-fredoka font-bold text-xs text-slate-800 flex items-center gap-1">
+                <span>1.</span> Select Your Talent Category:
+              </label>
+              <button 
+                type="button" 
+                onclick="app.fillExampleCreateForm()" 
+                class="text-[11px] font-fredoka font-bold text-teal-600 hover:text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 bubbly-btn"
+              >
+                💡 Fill Fun Sample
+              </button>
+            </div>
+            <div id="create-category-picker" class="grid grid-cols-3 gap-2">
+              <!-- Rendered by JS with the 6 categories -->
+            </div>
+          </div>
+
+          <!-- Project Title -->
+          <div>
+            <label for="create-title-input" class="block font-fredoka font-bold text-xs text-slate-800 mb-1.5">
+              <span>2.</span> Give Your Project a Title:
+            </label>
+            <input 
+              id="create-title-input" 
+              type="text" 
+              placeholder="e.g., The Friendly Bumblebee Song, Cardboard Robot..." 
+              required
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-teal-500 focus:bg-white"
+            />
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label for="create-desc-input" class="block font-fredoka font-bold text-xs text-slate-800 mb-1.5">
+              <span>3.</span> Describe Your Creation:
+            </label>
+            <textarea 
+              id="create-desc-input" 
+              rows="3" 
+              required
+              placeholder="Tell friends what you made, how you practiced, or what you love about it!" 
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs text-slate-900 focus:outline-none focus:border-teal-500 focus:bg-white resize-none"
+            ></textarea>
+          </div>
+
+          <!-- What can others learn? -->
+          <div>
+            <label for="create-takeaway-input" class="block font-fredoka font-bold text-xs text-slate-800 mb-1">
+              <span>4.</span> What can others learn from this? (Optional)
+            </label>
+            <input 
+              id="create-takeaway-input" 
+              type="text" 
+              placeholder="e.g., Practicing high notes, folding paper edges neatly..." 
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-teal-500"
+            />
+          </div>
+
+          <!-- Prototype Safety & Moderation Notice -->
+          <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
+            <span class="text-base">🛡️</span>
+            <div>
+              <span class="font-bold">Safe Review Process:</span> New submissions enter the <strong>Parent Corner pending queue</strong> first and do not appear publicly until approved by an adult.
+            </div>
+          </div>
+
+          <!-- Inline Validation Feedback -->
+          <div id="create-validation-msg" class="hidden p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+            <span id="create-validation-text">Please provide all required fields</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-teal-500 to-sky-500 hover:from-teal-600 hover:to-sky-600 text-white font-fredoka font-bold text-base shadow-lg shadow-teal-500/30 flex items-center justify-center gap-2 bubbly-btn"
+          >
+            <i data-lucide="send" class="w-5 h-5"></i> Submit for Parent Review 🚀
+          </button>
+
+        </form>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SCREEN 4: MY GROWTH (PORTFOLIO & BADGES)   -->
+      <!-- ========================================== -->
+      <section id="screen-growth" class="app-screen hidden p-4 space-y-4">
+        
+        <!-- Profile Header (Focus on encouragement, NO competitive ranking!) -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-100 card-kids flex items-center justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-400 to-pink-400 flex items-center justify-center text-3xl shadow-sm">
+              👧
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h2 class="font-fredoka font-bold text-lg text-slate-900 leading-tight">Maya</h2>
+                <span class="bg-teal-100 text-teal-800 text-[10px] font-fredoka font-bold px-2 py-0.5 rounded-full">Age 8</span>
+              </div>
+              <p class="text-xs text-slate-400 font-medium">Creative Learning Journey</p>
+              <div class="flex items-center gap-2 mt-1 text-[11px] font-fredoka text-emerald-700 font-bold">
+                <span>🌱 Personal Milestones & Growth</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <span class="text-xs text-slate-400 font-medium block">Personal Focus</span>
+            <span class="font-fredoka font-bold text-sm text-teal-700">Encouraging & Safe</span>
+          </div>
+        </div>
+
+        <!-- Positive Encouragement Banner -->
+        <div class="rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 p-4 text-white shadow-xs flex items-center gap-3">
+          <span class="text-3xl">🌟</span>
+          <p class="text-xs font-medium leading-relaxed">
+            <strong>Every effort matters, Maya!</strong> You've shared 3 creative talents and inspired friends this week. Keep practicing and exploring what you love!
+          </p>
+        </div>
+
+        <!-- Segmented Tab Navigation -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl">
+          <button 
+            data-growth-tab="creations" 
+            onclick="app.setGrowthTab('creations')"
+            class="flex-1 py-2.5 rounded-xl text-xs font-fredoka font-semibold bg-teal-600 text-white shadow-xs bubbly-btn"
+          >
+            My Projects 📂
+          </button>
+          <button 
+            data-growth-tab="badges" 
+            onclick="app.setGrowthTab('badges')"
+            class="flex-1 py-2.5 rounded-xl text-xs font-fredoka font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 bubbly-btn"
+          >
+            Badges 🏅
+          </button>
+          <button 
+            data-growth-tab="cheers" 
+            onclick="app.setGrowthTab('cheers')"
+            class="flex-1 py-2.5 rounded-xl text-xs font-fredoka font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 bubbly-btn"
+          >
+            Encouragements 💖
+          </button>
+        </div>
+
+        <!-- Panel 1: My Creations List with Clear Statuses -->
+        <div id="growth-panel-creations" class="space-y-3">
+          <div id="growth-creations-list" class="space-y-3">
+            <!-- Rendered by JS with Approved, Under Review, or Revision Requested pills -->
+          </div>
+        </div>
+
+        <!-- Panel 2: Badges Grid (Creativity, Practice, Learning, Kindness) -->
+        <div id="growth-panel-badges" class="hidden">
+          <div class="mb-2 px-1 text-xs text-slate-500">
+            Celebrating your personal progress across four healthy growth pillars:
+          </div>
+          <div id="growth-badges-grid" class="grid grid-cols-2 gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Panel 3: Kind Encouragements Feed -->
+        <div id="growth-panel-cheers" class="hidden space-y-2.5">
+          <div id="growth-cheers-list" class="space-y-2.5">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SCREEN 5: PARENT CORNER (GUARDIAN HUB)     -->
+      <!-- ========================================== -->
+      <section id="screen-parent" class="app-screen hidden p-4 space-y-4">
+        
+        <!-- Guardian Supervision Header -->
+        <div class="rounded-3xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 p-5 text-white shadow-md">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-fredoka font-semibold">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-purple-200"></i> Adult Supervision Hub
+            </span>
+            <button 
+              onclick="app.navigateTo('home'); sounds.pop();" 
+              class="text-xs text-white/80 hover:text-white underline font-fredoka"
+            >
+              Back to Kids Area
+            </button>
+          </div>
+          <h2 class="font-fredoka font-bold text-xl mt-2 leading-tight">Parent Supervision Panel</h2>
+          <p class="text-xs text-purple-200 mt-1">
+            Review pending sample creations. Only approved items appear in the public showcase.
+          </p>
+
+          <div class="mt-3 p-3 rounded-2xl bg-amber-400/20 border border-amber-300/30 text-[11px] text-amber-100 flex items-start gap-2.5">
+            <i data-lucide="info" class="w-4 h-4 text-amber-300 shrink-0 mt-0.5"></i>
+            <div>
+              <strong class="text-amber-200">Simulated Review Workflow (Prototype):</strong>
+              This panel demonstrates adult supervision and safety moderation before creations appear publicly. This prototype uses local demo state and does not collect real child data or claim verified parental consent.
+            </div>
+          </div>
+
+          <!-- Status Indicator Counters -->
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-center">
+            <div class="bg-white/10 p-2 rounded-xl backdrop-blur-xs">
+              <span id="parent-pending-tab-badge" class="font-fredoka font-bold text-base block text-amber-300">2</span>
+              <span class="text-[10px] text-purple-200">Pending Review</span>
+            </div>
+            <div class="bg-white/10 p-2 rounded-xl backdrop-blur-xs">
+              <span class="font-fredoka font-bold text-base block text-emerald-300">Active</span>
+              <span class="text-[10px] text-purple-200">Moderation Mode</span>
+            </div>
+            <div class="bg-white/10 p-2 rounded-xl backdrop-blur-xs">
+              <span class="font-fredoka font-bold text-base block text-sky-300">Zero</span>
+              <span class="text-[10px] text-purple-200">Public DMs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guardian Tabs -->
+        <div class="flex items-center gap-1.5 bg-purple-50 p-1 rounded-2xl border border-purple-100">
+          <button 
+            data-parent-tab="pending" 
+            onclick="app.setParentTab('pending')"
+            class="flex-1 py-2.5 rounded-xl text-xs font-fredoka font-semibold bg-purple-700 text-white shadow-xs bubbly-btn"
+          >
+            Pending Reviews ⏳
+          </button>
+          <button 
+            data-parent-tab="approved" 
+            onclick="app.setParentTab('approved')"
+            class="flex-1 py-2.5 rounded-xl text-xs font-fredoka font-semibold bg-purple-100 text-purple-900 hover:bg-purple-200 bubbly-btn"
+          >
+            Showcase List 🌟
+          </button>
+          <button 
+            data-parent-tab="safety" 
+            onclick="app.setParentTab('safety')"
+            class="flex-1 py-2.5 rounded-xl text-xs font-fredoka font-semibold bg-purple-100 text-purple-900 hover:bg-purple-200 bubbly-btn"
+          >
+            Safety Guidelines 🛡️
+          </button>
+        </div>
+
+        <!-- Panel A: Pending Submissions Queue with Approve / Reject -->
+        <div id="parent-panel-pending" class="space-y-4">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="font-fredoka font-bold text-sm text-slate-800">Pending Review Queue</h3>
+            <span class="text-[11px] text-slate-500">Approve or reject to update status</span>
+          </div>
+
+          <div id="parent-pending-queue" class="space-y-4">
+            <!-- Rendered by JS with Approve and Reject buttons -->
+          </div>
+        </div>
+
+        <!-- Panel B: Live Showcase Manager -->
+        <div id="parent-panel-approved" class="hidden space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="font-fredoka font-bold text-sm text-slate-800">Active Showcase Items</h3>
+            <span class="text-[11px] text-slate-500">Currently public in Discover</span>
+          </div>
+
+          <div id="parent-approved-list" class="space-y-2.5">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Panel C: Safety & Supervision Principles -->
+        <div id="parent-panel-safety" class="hidden space-y-3">
+          <div class="bg-white rounded-3xl p-4.5 border border-purple-100 space-y-3 text-xs text-slate-700">
+            <h4 class="font-fredoka font-bold text-sm text-purple-950 flex items-center gap-1.5">
+              <i data-lucide="shield" class="w-4 h-4 text-purple-600"></i> KidsMedia Child Safety Commitments
+            </h4>
+            <div class="space-y-2 text-slate-600">
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <p><strong>100% Guardian Supervised:</strong> No project is published to Discover without adult review.</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <p><strong>Non-Competitive & Uplifting:</strong> No public rankings, leaderboards, or like counters. Community uses preset encouraging affirmations.</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <p><strong>Zero Direct Messaging:</strong> Prevents private communication risks entirely.</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <p><strong>Zero Real PII:</strong> No children's real faces, home addresses, phone numbers, or school names.</p>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-slate-500 text-[11px]">Need to reset demo state?</span>
+              <button 
+                onclick="app.resetDemoData()" 
+                class="px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 hover:bg-rose-100 font-fredoka font-bold text-xs bubbly-btn"
+              >
+                Reset Demo Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Fixed Mobile App Bottom Navigation Bar -->
+    <nav class="absolute bottom-0 left-0 right-0 h-20 bottom-nav-container flex items-center justify-around px-2 z-40">
+      
+      <!-- Nav Item 1: Home -->
+      <button 
+        data-nav-target="home"
+        class="bottom-nav-item flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-teal-600 transition-colors bubbly-btn"
+      >
+        <div class="nav-icon-wrapper w-9 h-9 rounded-2xl flex items-center justify-center transition-all mb-0.5">
+          <i data-lucide="home" class="w-5 h-5"></i>
+        </div>
+        <span class="text-[10px] font-fredoka font-semibold">Home</span>
+      </button>
+
+      <!-- Nav Item 2: Discover -->
+      <button 
+        data-nav-target="discover"
+        class="bottom-nav-item flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-teal-600 transition-colors bubbly-btn"
+      >
+        <div class="nav-icon-wrapper w-9 h-9 rounded-2xl flex items-center justify-center transition-all mb-0.5">
+          <i data-lucide="compass" class="w-5 h-5"></i>
+        </div>
+        <span class="text-[10px] font-fredoka font-semibold">Discover</span>
+      </button>
+
+      <!-- Nav Item 3: Center Elevated Create Button -->
+      <div class="flex flex-col items-center justify-center -mt-6 px-1">
+        <button 
+          data-nav-target="create"
+          class="nav-create-btn w-14 h-14 rounded-full text-white flex items-center justify-center shadow-lg bubbly-btn"
+          title="Create Sample Showcase"
+        >
+          <i data-lucide="plus" class="w-7 h-7 stroke-[2.5]"></i>
+        </button>
+        <span class="text-[10px] font-fredoka font-bold text-teal-700 mt-1">Create</span>
+      </div>
+
+      <!-- Nav Item 4: My Growth -->
+      <button 
+        data-nav-target="growth"
+        class="bottom-nav-item flex flex-col items-center justify-center flex-1 py-1 text-slate-500 hover:text-teal-600 transition-colors bubbly-btn"
+      >
+        <div class="nav-icon-wrapper w-9 h-9 rounded-2xl flex items-center justify-center transition-all mb-0.5">
+          <i data-lucide="award" class="w-5 h-5"></i>
+        </div>
+        <span class="text-[10px] font-fredoka font-semibold">My Growth</span>
+      </button>
+
+    </nav>
+
+    <!-- Bottom Home Bar Line for Mobile Feel -->
+    <div class="w-32 h-1 bg-slate-300 rounded-full mx-auto absolute bottom-1.5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODALS & POPUPS                            -->
+  <!-- ========================================== -->
+
+  <!-- 1. CREATION PLAY & LEARN DETAIL MODAL -->
+  <div id="creation-detail-modal" class="app-modal fixed inset-0 z-50 hidden flex items-center justify-center p-3 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-5 relative shadow-2xl space-y-4 screen-fade">
+      
+      <!-- Close button -->
+      <button 
+        data-close-modal 
+        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center bubbly-btn z-20"
+      >
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Media Player & Thumbnail Simulator -->
+      <div id="modal-banner" class="h-44 rounded-2xl bg-teal-500 flex flex-col items-center justify-center text-white relative">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Interactive Playback Simulator -->
+      <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center gap-3">
+        <button 
+          id="btn-modal-play" 
+          onclick="app.togglePlaybackSimulator()" 
+          class="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-sm bubbly-btn shrink-0"
+        >
+          <i data-lucide="play" class="w-5 h-5 fill-white"></i>
+        </button>
+        <div class="flex-1">
+          <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+            <div id="modal-player-progress" class="h-full bg-teal-500 rounded-full transition-all duration-100" style="width: 0%;"></div>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
+            <span>Simulated child showcase</span>
+            <div id="modal-visualizer" class="flex items-center gap-1 opacity-20">
+              <span class="sound-bar text-teal-600"></span>
+              <span class="sound-bar text-teal-600"></span>
+              <span class="sound-bar text-teal-600"></span>
+              <span class="sound-bar text-teal-600"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creator Header -->
+      <div class="flex items-center justify-between pt-1">
+        <div class="flex items-center gap-3">
+          <div id="modal-creator-avatar" class="w-10 h-10 rounded-full bg-amber-100 text-slate-800 flex items-center justify-center text-lg shadow-xs">
+            ⭐
+          </div>
+          <div>
+            <h3 id="modal-title" class="font-fredoka font-bold text-base text-slate-900 leading-tight">Project Title</h3>
+            <p id="modal-creator-name" class="text-xs text-slate-500">By Creator (Age 8)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 leading-relaxed">
+        <p id="modal-desc">Description text...</p>
+      </div>
+
+      <!-- Learning Takeaway & Materials -->
+      <div class="space-y-2 text-xs">
+        <div class="bg-teal-50 p-3 rounded-2xl border border-teal-100 text-teal-900">
+          <span class="font-fredoka font-bold text-xs flex items-center gap-1 text-teal-800 mb-0.5">
+            💡 What you can learn:
+          </span>
+          <p id="modal-takeaway" class="text-[11px] leading-relaxed">Takeaway...</p>
+        </div>
+        <div class="bg-amber-50 p-2.5 rounded-2xl border border-amber-100 text-amber-900 text-[11px]">
+          <strong>🎨 Materials / Props:</strong> <span id="modal-materials">Paper, colors</span>
+        </div>
+      </div>
+
+      <!-- Preset Encouragement Action (No popularity ranking!) -->
+      <div class="pt-2 border-t border-slate-100">
+        <p class="font-fredoka font-bold text-xs text-slate-800 mb-1">Send a Friendly Encouragement! 🎈</p>
+        <p id="modal-encouragement-count" class="text-[11px] text-slate-500 mb-2.5">
+          Friends have sent warm affirmations to celebrate this creative effort.
+        </p>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button 
+            onclick="app.sendPresetEncouragement('Celebrate Creativity!', '🌟')" 
+            class="py-2 px-3 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-fredoka font-bold text-xs bubbly-btn flex items-center gap-1"
+          >
+            <span>🌟</span> “Celebrate Creativity!”
+          </button>
+          <button 
+            onclick="app.sendPresetEncouragement('Love your effort!', '💖')" 
+            class="py-2 px-3 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-900 font-fredoka font-bold text-xs bubbly-btn flex items-center gap-1"
+          >
+            <span>💖</span> “Love your effort!”
+          </button>
+          <button 
+            onclick="app.sendPresetEncouragement('So inspiring!', '🚀')" 
+            class="py-2 px-3 rounded-full bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-900 font-fredoka font-bold text-xs bubbly-btn flex items-center gap-1"
+          >
+            <span>🚀</span> “So inspiring!”
+          </button>
+          <button 
+            onclick="app.sendPresetEncouragement('Super curious!', '💡')" 
+            class="py-2 px-3 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 font-fredoka font-bold text-xs bubbly-btn flex items-center gap-1"
+          >
+            <span>💡</span> “Super curious!”
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. PARENT GATE SECURITY MODAL -->
+  <div id="parent-gate-modal" class="app-modal fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 relative shadow-2xl space-y-4 screen-fade text-center">
+      
+      <!-- Close button -->
+      <button 
+        data-close-modal 
+        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center bubbly-btn"
+      >
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center mx-auto text-2xl shadow-xs">
+        🛡️
+      </div>
+
+      <div>
+        <h3 class="font-fredoka font-bold text-lg text-slate-900">Parent Access Gate</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          To enter the adult supervision hub, please solve this verification challenge:
+        </p>
+      </div>
+
+      <div class="bg-purple-50 p-4 rounded-2xl border border-purple-100">
+        <p id="parent-gate-question" class="font-fredoka font-bold text-lg text-purple-900">What is 7 + 6?</p>
+        <input 
+          id="parent-gate-input" 
+          type="number" 
+          placeholder="Answer" 
+          class="mt-2 w-32 mx-auto text-center font-fredoka font-bold text-lg bg-white border border-purple-200 rounded-xl py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-400"
+        />
+        <p id="parent-gate-error" class="text-rose-600 text-xs font-semibold mt-1 hidden">Incorrect answer, please try again.</p>
+      </div>
+
+      <div class="space-y-2">
+        <button 
+          id="btn-verify-parent-gate" 
+          class="w-full py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-fredoka font-bold text-xs shadow-md bubbly-btn"
+        >
+          Verify & Enter Parent Corner
+        </button>
+        <button 
+          id="btn-bypass-parent-gate" 
+          class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-fredoka text-xs bubbly-btn"
+        >
+          Demo Bypass (Instant Access) ⚡
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. SUBMISSION SUCCESS CELEBRATION MODAL -->
+  <div id="submission-success-modal" class="app-modal fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 relative shadow-2xl text-center space-y-4 screen-fade">
+      
+      <div class="text-5xl animate-bounce">🎉 🚀</div>
+
+      <div>
+        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-fredoka font-bold">
+          Submitted for Review!
+        </span>
+        <h3 class="font-fredoka font-bold text-lg text-slate-900 mt-2">
+          Awesome job, Maya!
+        </h3>
+        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+          Your project <span id="success-modal-title" class="font-bold text-teal-700"></span> has been added to the Parent Corner review queue.
+        </p>
+      </div>
+
+      <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-left text-xs text-slate-600 space-y-1">
+        <div class="flex items-center gap-1.5 text-teal-700 font-semibold">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i> Listed under "Under Parent Review" in My Growth
+        </div>
+        <div class="flex items-center gap-1.5 text-purple-700 font-semibold">
+          <i data-lucide="shield" class="w-3.5 h-3.5"></i> Held securely until approved by a guardian
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2 pt-2">
+        <button 
+          onclick="app.closeAllModals(); app.navigateTo('growth'); sounds.pop();" 
+          class="w-full py-2.5 rounded-xl bg-teal-600 text-white font-fredoka font-bold text-xs shadow-md bubbly-btn"
+        >
+          View in My Growth 🌱
+        </button>
+        <button 
+          onclick="app.closeAllModals(); app.navigateTo('parent'); sounds.pop();" 
+          class="w-full py-2 rounded-xl bg-purple-50 text-purple-800 font-fredoka font-bold text-xs border border-purple-200 bubbly-btn"
+        >
+          Review in Parent Corner (Demo) 🛡️
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- App Toast Notification -->
+  <div id="app-toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+    <div class="bg-slate-900/90 text-white px-4 py-2 rounded-full text-xs font-fredoka font-semibold shadow-xl backdrop-blur-md flex items-center gap-2">
+      <span id="toast-message">Notification</span>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="sound.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
